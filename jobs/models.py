@@ -5,6 +5,8 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
     def __str__(self): return self.name
 
+
+
 class Job(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='jobs')
     title = models.CharField(max_length=200)
@@ -17,6 +19,24 @@ class Job(models.Model):
     is_active = models.BooleanField(default=True)
     def __str__(self): return f"{self.title} @ {self.company}"
 
+
+
+class profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    birth_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'app_profile'
+
+    def __str__(self):
+        return self.user.username
+
+   
+
+
+    
 class Application(models.Model):
     STATUS = [('pending','Pending'),('accepted','Accepted'),('rejected','Rejected')]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
@@ -26,6 +46,7 @@ class Application(models.Model):
     cover_letter = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS, default='pending')
     applied_at = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         unique_together = ('user', 'job')   
