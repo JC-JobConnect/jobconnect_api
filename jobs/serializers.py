@@ -1,23 +1,40 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import Category, Job, Application
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+
+class JobSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    company_logo = serializers.ImageField(required=False, allow_null=True)
+    class Meta:
+        model = Job
+        fields = ['id','title','company','location','description','salary',
+                  'company_logo','created_at','is_active','category','category_name']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
-
     class Meta:
         model = User
-        fields = ['username', 'email', 'password','confirm_password']
+        fields = ['username','email','password']
+    def create(self, data):
+        return User.objects.create_user(**data)
 
-    def validate(self, data):
-        if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError({
-                'confirm_password': 'Passwords do not match.'
-            })
-        return data
+class ApplicationSerializer(serializers.ModelSerializer):
+    job_title = serializers.CharField(source='job.title', read_only=True)
+    company = serializers.CharField(source='job.company', read_only=True)
+    class Meta:
+        model = Application
+        fields = ['id','job','job_title','company','full_name','email',
+                  'cover_letter','status','applied_at']
+        read_only_fields = ['status','applied_at']
 
-    def create(self, validated_data):
-        validated_data.pop('confirm_password')
-        user = User.objects.create_user(**validated_data)
-        return user
+    def validate(self, attrs):
+        user = self.context['request'].user
+        if Application.objects.filter(user=user, job=attrs['job']).exists():
+            raise serializers.ValidationError("You already applied for this job.")
+        return attrs
