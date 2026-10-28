@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, CurrentUserSerializer
 
 
 def login_view(request):
@@ -12,3 +13,10 @@ def login_view(request):
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
+
+class CurrentUserView(generics.RetrieveAPIView):
+    serializer_class = CurrentUserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

@@ -12,37 +12,23 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 import os
-from pathlib import Path
 from dotenv import load_dotenv
 
-# Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env from the directory containing manage.py
 load_dotenv(BASE_DIR / ".env")
 
-# Get secret key from .env
 SECRET_KEY = os.getenv("SECRET_KEY")
-
 if not SECRET_KEY:
-    raise ValueError("SECRET_KEY is missing from the .env file")
+    raise ValueError("SECRET_KEY is missing from .env")
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7zt7h^_qzre)u4ff-osoyg&9ldh+je)7(^b-kfe71adm#&t_%%'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 
 # Application definition
@@ -149,21 +135,22 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"
+)
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
     ],
 }
 
 CORS_ALLOWED_ORIGINS = [
-
+    "http://localhost:5173",
 ]
