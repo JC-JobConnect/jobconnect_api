@@ -24,7 +24,7 @@ class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = ['id', 'title', 'company', 'location', 'description', 'salary',
-                  'company_logo', 'created_at', 'is_active', 'category', 'category_name']
+                  'company_logo', 'created_at', 'is_active', 'is_featured', 'category', 'category_name']
         read_only_fields = ['created_at']
 
 
@@ -55,3 +55,51 @@ class ApplicationSerializer(serializers.ModelSerializer):
         if Application.objects.filter(user=user, job=attrs['job']).exists():
             raise serializers.ValidationError("You already applied for this job.")
         return attrs
+
+
+class AdminApplicationSerializer(serializers.ModelSerializer):
+    job_title = serializers.CharField(
+        source='job.title',
+        read_only=True
+    )
+    company = serializers.CharField(
+        source='job.company',
+        read_only=True
+    )
+    applicant_username = serializers.CharField(
+        source='user.username',
+        read_only=True
+    )
+
+    class Meta:
+        model = Application
+        fields = ['id','user','applicant_username','job','job_title','company','full_name','email',
+                  'cover_letter','status','applied_at',]
+        read_only_fields = fields
+
+
+class AdminApplicationStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['status']
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'is_active',
+            'date_joined',
+        ]
+        read_only_fields = fields
+
+
+class AdminUserStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_active']

@@ -8,8 +8,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('title','company','category','location','is_active','created_at')
-    list_filter = ('is_active','category','location')
+    list_display = ('title','company','category','location','is_active','is_featured','created_at')
+    list_filter = ('is_active','is_featured','category','location')
     search_fields = ('title','company','location')
 
 @admin.register(Application)

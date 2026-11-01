@@ -17,6 +17,7 @@ class Job(models.Model):
     company_logo = models.ImageField(upload_to='logos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
     def __str__(self): return f"{self.title} @ {self.company}"
 
 
