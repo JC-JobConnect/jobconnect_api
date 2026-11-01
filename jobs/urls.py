@@ -9,7 +9,6 @@ router.register('jobs', JobViewSet, basename='jobs')
 
 urlpatterns = [
     path('v1/categories/', CategoryListView.as_view()),
-    path('v1/register/', RegisterView.as_view()),
     path('v1/applications/', ApplicationCreateView.as_view()),
     path('v1/my-applications/', MyApplicationsView.as_view()),
     path('v1/dashboard/counts/', CountsView.as_view()),

@@ -32,16 +32,6 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
         return Job.objects.filter(is_active=True).select_related('category')
 
 
-
-
-class RegisterView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-
-
-
 class ApplicationCreateView(generics.CreateAPIView):
     serializer_class = ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
