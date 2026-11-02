@@ -5,9 +5,10 @@ from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, Job, Application, Company
+from .models import Category, Job, Application, Company,Profile,Education,Experience,Skill
 from .serializers import *
-from .models import profile
+
+
 
 
 
@@ -94,10 +95,43 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        obj, _ = profile.objects.get_or_create(user=self.request.user)
+        obj, _ = Profile.objects.get_or_create(user=self.request.user)
         
         return obj
 
+class EducationView(generics.CreateAPIView):
+    serializer_class = EducationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        profile, _ = Profile.objects.get_or_create(
+            user=self.request.user
+        )
+        serializer.save(profile=profile)
+
+
+
+class ExperienceView(generics.CreateAPIView):
+    serializer_class = ExperienceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        profile, _ = Profile.objects.get_or_create(
+            user=self.request.user
+        )
+        serializer.save(profile=profile)
+
+
+    
+class SkillView(generics.CreateAPIView):
+    serializer_class = SkillSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        profile, _ = Profile.objects.get_or_create(
+            user=self.request.user
+        )
+        serializer.save(profile=profile)
 
 class AdminApplicationListView(generics.ListAPIView):
     serializer_class = AdminApplicationSerializer

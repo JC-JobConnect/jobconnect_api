@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Category, Job, Application, profile, Company
+from .models import Category, Job, Application, Profile, Company,Education, Experience, Skill
 
 
 
@@ -30,16 +30,57 @@ class JobSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email', read_only=True)
     class Meta:
-        model = profile
-        fields = ['user', 'bio', 'location', 'birth_date']
-        read_only_fields = ['user']
+        model = Profile
+        fields = ['user', 'profile_picture','full_name','email','phone', 'location', 'headline','bio','cv']
+        read_only_fields = ['user','email']
+
+    def validate_cv(self, value):
+        if value:
+            if not value.name.lower().endswith('.pdf'):
+                raise serializers.ValidationError("Only PDF files are allowed.")
+ 
+            if value.size >= 250 * 1024:
+                raise serializers.ValidationError("CV size must be less than 250 KB.")
+
+        return value
+
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
 
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = [
+            'id',
+            'degree',
+            'institution',
+            'field_of_study',
+            'result',
+        ]
 
+class ExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        fields = [
+            'id',
+            'job_title',
+            'company_name',
+            'currently_working',
+            'responsibilities',
+        ]
+
+class SkillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = [
+            'id',
+            'skill_name',
+            'skill_level',
+        ]
 
 class ApplicationSerializer(serializers.ModelSerializer):
     job_title = serializers.CharField(source='job.title', read_only=True)
