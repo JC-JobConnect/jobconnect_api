@@ -23,8 +23,8 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['id', 'title', 'company', 'location', 'description', 'salary',
-                  'company_logo', 'created_at', 'is_active', 'is_featured', 'category', 'category_name']
+        fields = ['id', 'title', 'company', 'company_name', 'location', 'description', 'salary',
+                   'created_at', 'is_active', 'is_featured', 'category', 'category_name']
         read_only_fields = ['created_at']
 
 
@@ -103,6 +103,8 @@ class AdminUserStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['is_active']
+
+        
 class CompanySerializer(serializers.ModelSerializer):
 
     vacancy = serializers.SerializerMethodField()

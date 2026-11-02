@@ -26,12 +26,12 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = JobSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'location']
-    search_fields = ['title', 'company', 'description']
+    search_fields = ['title', 'company__name', 'description']
     ordering_fields = ['created_at', 'salary']
 
 
     def get_queryset(self):
-        return Job.objects.filter(is_active=True).select_related('category')
+        return Job.objects.filter(is_active=True).select_related('category','company')
 
 class AdminJobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.select_related('category').all().order_by('-created_at')
