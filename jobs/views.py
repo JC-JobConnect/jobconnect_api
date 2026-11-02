@@ -34,7 +34,7 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
         return Job.objects.filter(is_active=True).select_related('category','company')
 
 class AdminJobViewSet(viewsets.ModelViewSet):
-    queryset = Job.objects.select_related('category').all().order_by('-created_at')
+    queryset = Job.objects.select_related('category', 'company').all().order_by('-created_at')
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAdminUser]
 
@@ -102,9 +102,8 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 class AdminApplicationListView(generics.ListAPIView):
     serializer_class = AdminApplicationSerializer
     permission_classes = [permissions.IsAdminUser]
-
     queryset = Application.objects.select_related(
-        'user', 'job'
+        'user', 'job', 'job__company', 'job__category'
     ).all().order_by('-applied_at')
 
 
@@ -115,16 +114,15 @@ class AdminApplicationStatusUpdateView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAdminUser]
 
 
-class AdminUserListView(generics.ListAPIView):
+class AdminUserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('-date_joined')
     serializer_class = AdminUserSerializer
     permission_classes = [permissions.IsAdminUser]
-    queryset = User.objects.all().order_by('-date_joined')
 
-
-class AdminUserStatusUpdateView(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = AdminUserStatusSerializer
-    permission_classes = [permissions.IsAdminUser]
+    def get_serializer_class(self):
+        if self.action in ['update', 'partial_update']:
+            return AdminUserStatusSerializer
+        return AdminUserSerializer
 
 
 class CompanyListView(generics.ListAPIView):
@@ -133,3 +131,9 @@ class CompanyListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     authentication_classes = []
     pagination_class = None
+
+
+class AdminCompanyViewSet(viewsets.ModelViewSet):
+    queryset = Company.objects.all().order_by('name')
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAdminUser]

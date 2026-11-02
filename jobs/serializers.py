@@ -20,6 +20,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class JobSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    company_name = serializers.CharField(source='company.name', read_only=True)
 
     class Meta:
         model = Job
@@ -104,15 +105,38 @@ class AdminUserStatusSerializer(serializers.ModelSerializer):
         model = User
         fields = ['is_active']
 
-        
-class CompanySerializer(serializers.ModelSerializer):
 
-    vacancy = serializers.SerializerMethodField()
-    jobs = JobSerializer(many=True, read_only=True)
+class CompanySerializer(serializers.ModelSerializer):
+    vacancy = serializers.SerializerMethodField(read_only=True)
+    jobs = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Company
-        fields = ['id','name','location','bio','logo','created_at','vacancy','jobs']
+        fields = ['id', 'name', 'location', 'bio', 'logo','created_at', 'vacancy', 'jobs']
+        read_only_fields = ['created_at', 'vacancy', 'jobs']
 
     def get_vacancy(self, obj):
         return obj.jobs.filter(is_active=True).count()
+
+    def get_jobs(self, obj):
+        try:
+            active_jobs = obj.jobs.filter(is_active=True).select_related('category')
+
+            result = []
+            for job in active_jobs:
+                result.append({
+                    "id": job.id,
+                    "title": job.title,
+                    "location": job.location,
+                    "salary": str(job.salary) if job.salary is not None else None,
+                    "description": job.description,
+                    "is_featured": job.is_featured,
+                    "is_active": job.is_active,
+                    "category": job.category_id,
+                    "category_name": job.category.name if job.category else None,
+                    "created_at": job.created_at.isoformat() if job.created_at else None,
+                })
+            return result
+        except Exception as e:
+            print("Error serializing jobs for company:", e)
+            return []
