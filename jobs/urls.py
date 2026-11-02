@@ -16,5 +16,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
     path('v1/profile/', ProfileView.as_view()),
+    path('v1/companies/', CompanyListView.as_view()),
 
 ]

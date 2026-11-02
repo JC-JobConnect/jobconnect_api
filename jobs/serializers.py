@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Category, Job, Application, profile
+from .models import Category, Job, Application, profile, Company
 
 
 
@@ -24,7 +24,7 @@ class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = ['id', 'title', 'company', 'location', 'description', 'salary',
-                  'company_logo', 'created_at', 'is_active', 'category', 'category_name']
+                  'created_at', 'is_active', 'category', 'category_name']
         read_only_fields = ['created_at']
 
 
@@ -55,3 +55,16 @@ class ApplicationSerializer(serializers.ModelSerializer):
         if Application.objects.filter(user=user, job=attrs['job']).exists():
             raise serializers.ValidationError("You already applied for this job.")
         return attrs
+
+
+class CompanySerializer(serializers.ModelSerializer):
+
+    vacancy = serializers.SerializerMethodField()
+    jobs = JobSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Company
+        fields = ['id','name','location','bio','logo','created_at','vacancy','jobs']
+
+    def get_vacancy(self, obj):
+        return obj.jobs.filter(is_active=True).count()

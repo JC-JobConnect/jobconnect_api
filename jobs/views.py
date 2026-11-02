@@ -4,9 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, Job, Application
+from .models import Category, Job, Application, Company
 from .serializers import *
 from .models import profile
 
@@ -75,3 +74,11 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         obj, _ = profile.objects.get_or_create(user=self.request.user)
         
         return obj
+
+
+class CompanyListView(generics.ListAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    pagination_class = None
