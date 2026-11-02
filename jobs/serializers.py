@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Category, Job, Application, profile
+from .models import Category, Job, Application, profile, Company
 
 
 
@@ -103,3 +103,14 @@ class AdminUserStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['is_active']
+class CompanySerializer(serializers.ModelSerializer):
+
+    vacancy = serializers.SerializerMethodField()
+    jobs = JobSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Company
+        fields = ['id','name','location','bio','logo','created_at','vacancy','jobs']
+
+    def get_vacancy(self, obj):
+        return obj.jobs.filter(is_active=True).count()

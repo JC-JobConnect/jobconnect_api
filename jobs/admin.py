@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Job, Application ,profile
+from .models import Category, Job, Application ,profile, Company
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -22,3 +22,9 @@ class ApplicationAdmin(admin.ModelAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user','location','birth_date')
     search_fields = ('user__username','location')
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'location', 'created_at')
+    list_filter = ('location',)
+    search_fields = ('name', 'location')

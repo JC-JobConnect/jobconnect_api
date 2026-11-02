@@ -4,9 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, Job, Application
+from .models import Category, Job, Application, Company
 from .serializers import *
 from .models import profile
 
@@ -90,8 +89,6 @@ class AdminDashboardStatsView(CountsView):
         return Response(data)
 
 
-
-
 class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -100,9 +97,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         obj, _ = profile.objects.get_or_create(user=self.request.user)
         
         return obj
-
-
-
 
 
 class AdminApplicationListView(generics.ListAPIView):
@@ -124,7 +118,6 @@ class AdminApplicationStatusUpdateView(generics.UpdateAPIView):
 class AdminUserListView(generics.ListAPIView):
     serializer_class = AdminUserSerializer
     permission_classes = [permissions.IsAdminUser]
-
     queryset = User.objects.all().order_by('-date_joined')
 
 
@@ -132,3 +125,11 @@ class AdminUserStatusUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = AdminUserStatusSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class CompanyListView(generics.ListAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    pagination_class = None
