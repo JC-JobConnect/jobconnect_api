@@ -2,6 +2,7 @@ from rest_framework import generics, permissions, filters, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
@@ -93,16 +94,22 @@ class AdminDashboardStatsView(CountsView):
 class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         obj, _ = Profile.objects.get_or_create(user=self.request.user)
         
         return obj
 
-class EducationView(generics.CreateAPIView):
+class EducationView(generics.ListCreateAPIView):
     serializer_class = EducationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        return Education.objects.filter(
+            profile__user=self.request.user
+        )
+
     def perform_create(self, serializer):
         profile, _ = Profile.objects.get_or_create(
             user=self.request.user
@@ -110,28 +117,68 @@ class EducationView(generics.CreateAPIView):
         serializer.save(profile=profile)
 
 
+class EducationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = EducationSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class ExperienceView(generics.CreateAPIView):
+    def get_queryset(self):
+        return Education.objects.filter(
+            profile__user=self.request.user
+        )
+
+
+class ExperienceView(generics.ListCreateAPIView):
     serializer_class = ExperienceSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        return Experience.objects.filter(
+            profile__user=self.request.user
+        )
+
     def perform_create(self, serializer):
         profile, _ = Profile.objects.get_or_create(
             user=self.request.user
         )
         serializer.save(profile=profile)
+
+
+class ExperienceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ExperienceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Experience.objects.filter(
+            profile__user=self.request.user
+        )
 
 
     
-class SkillView(generics.CreateAPIView):
+class SkillView(generics.ListCreateAPIView):
     serializer_class = SkillSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Skill.objects.filter(
+            profile__user=self.request.user
+        )
 
     def perform_create(self, serializer):
         profile, _ = Profile.objects.get_or_create(
             user=self.request.user
         )
         serializer.save(profile=profile)
+
+
+class SkillDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = SkillSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+      
+        return Skill.objects.filter(
+            profile__user=self.request.user
+        )
 
 class AdminApplicationListView(generics.ListAPIView):
     serializer_class = AdminApplicationSerializer

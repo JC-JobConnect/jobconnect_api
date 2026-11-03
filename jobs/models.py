@@ -30,6 +30,13 @@ class Profile(models.Model):
         blank=True,
         null=True
     )
+
+    cv = models.FileField(
+    upload_to="cvs/",
+    blank=True,
+    null=True
+    )
+    
     full_name = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     location = models.CharField(max_length=100, blank=True)
