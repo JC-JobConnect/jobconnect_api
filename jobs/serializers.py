@@ -24,8 +24,14 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['id', 'title', 'company', 'company_name', 'location', 'description', 'salary',
-                   'created_at', 'is_active', 'is_featured', 'category', 'category_name']
+        fields = ['id', 'title', 'company', 'company_name', 'location', 'description',
+                  #new
+                  'job_type','responsibilities','requirements',
+                   
+                  #optional
+                  'work_mode','experience_level',
+
+                  'salary','created_at', 'is_active', 'is_featured', 'category', 'category_name']
         read_only_fields = ['created_at']
 
 
@@ -130,6 +136,8 @@ class CompanySerializer(serializers.ModelSerializer):
                     "location": job.location,
                     "salary": str(job.salary) if job.salary is not None else None,
                     "description": job.description,
+                    "responsibilities":job.responsibilities,
+                    "requirements":job.requirements,
                     "is_featured": job.is_featured,
                     "is_active": job.is_active,
                     "category": job.category_id,

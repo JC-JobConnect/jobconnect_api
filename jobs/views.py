@@ -8,6 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Job, Application, Company
 from .serializers import *
 from .models import profile
+from rest_framework.permissions import AllowAny
 
 
 
@@ -24,6 +25,7 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = JobSerializer
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'location']
     search_fields = ['title', 'company__name', 'description']
