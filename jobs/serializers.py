@@ -21,10 +21,11 @@ class CategorySerializer(serializers.ModelSerializer):
 class JobSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     company_name = serializers.CharField(source='company.name', read_only=True)
+    company_logo = serializers.ImageField(source='company.logo',read_only=True)
 
     class Meta:
         model = Job
-        fields = ['id', 'title', 'company', 'company_name', 'location', 'description',
+        fields = ['id', 'title', 'company', 'company_name', 'company_logo', 'location', 'description',
                   #new
                   'job_type','responsibilities','requirements',
                    
