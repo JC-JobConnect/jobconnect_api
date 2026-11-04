@@ -8,7 +8,7 @@ from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import (Category,Job,Application,Company,Profile,Education,Experience,Skill,)
 from .serializers import *
-from .models import profile
+from .models import Profile
 from rest_framework.permissions import AllowAny
 
 
@@ -28,7 +28,7 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = JobSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
 
     filter_backends = [
         DjangoFilterBackend,
