@@ -27,7 +27,7 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = JobSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'location']
+    filterset_fields = ['category', 'location', 'experience_level', 'job_type', 'work_mode']
     search_fields = ['title', 'company__name', 'description']
     ordering_fields = ['created_at', 'salary']
 
