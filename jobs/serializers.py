@@ -16,8 +16,6 @@ class CategorySerializer(serializers.ModelSerializer):
         return value
 
 
-
-
 class JobSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     company_name = serializers.CharField(source='company.name', read_only=True)
@@ -30,26 +28,40 @@ class JobSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(source='user.email', read_only=True)
+    email = serializers.EmailField(
+        source='user.email',
+        read_only=True
+    )
+
     class Meta:
         model = Profile
-        fields = ['user', 'profile_picture','full_name','email','phone', 'location', 'headline','bio','cv']
-        read_only_fields = ['user','email']
+        fields = [
+            'user',
+            'profile_picture',
+            'full_name',
+            'email',
+            'phone',
+            'location',
+            'headline',
+            'bio',
+            'cv',
+        ]
+        read_only_fields = ['user', 'email']
 
     def validate_cv(self, value):
         if value:
             if not value.name.lower().endswith('.pdf'):
-                raise serializers.ValidationError("Only PDF files are allowed.")
- 
-            if value.size >= 250 * 1024:
-                raise serializers.ValidationError("CV size must be less than 250 KB.")
+                raise serializers.ValidationError(
+                    "Only PDF files are allowed."
+                )
+
+            if value.size > 250 * 1024:
+                raise serializers.ValidationError(
+                    "CV must be less than or equal to 250 KB."
+                )
 
         return value
 
-
-    def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
 
 class EducationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,6 +74,7 @@ class EducationSerializer(serializers.ModelSerializer):
             'result',
         ]
 
+
 class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
@@ -72,6 +85,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
             'currently_working',
             'responsibilities',
         ]
+
 
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:

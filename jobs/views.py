@@ -2,13 +2,12 @@ from rest_framework import generics, permissions, filters, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, Job, Application, Company,Profile,Education,Experience,Skill
+from .models import (Category,Job,Application,Company,Profile,Education,Experience,Skill,)
 from .serializers import *
-
 
 
 
@@ -18,27 +17,43 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     pagination_class = None
 
+
 class AdminCategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAdminUser]
 
 
+
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = JobSerializer
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    permission_classes = [permissions.AllowAny]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+
     filterset_fields = ['category', 'location']
     search_fields = ['title', 'company__name', 'description']
     ordering_fields = ['created_at', 'salary']
 
-
     def get_queryset(self):
-        return Job.objects.filter(is_active=True).select_related('category','company')
+        return Job.objects.filter(
+            is_active=True
+        ).select_related('category', 'company')
+
 
 class AdminJobViewSet(viewsets.ModelViewSet):
-    queryset = Job.objects.select_related('category', 'company').all().order_by('-created_at')
+    queryset = Job.objects.select_related(
+        'category',
+        'company'
+    ).all().order_by('-created_at')
+
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAdminUser]
+
 
 
 class ApplicationCreateView(generics.CreateAPIView):
@@ -49,17 +64,20 @@ class ApplicationCreateView(generics.CreateAPIView):
         try:
             serializer.save(user=self.request.user)
         except IntegrityError:
-            raise ValidationError("You already applied for this job.")
-
+            raise ValidationError(
+                "You already applied for this job."
+            )
 
 
 class MyApplicationsView(generics.ListAPIView):
     serializer_class = ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
     def get_queryset(self):
-        return Application.objects.filter(user=self.request.user).select_related('job')
+        return Application.objects.filter(
+            user=self.request.user
+        ).select_related('job')
+
 
 
 
@@ -91,15 +109,26 @@ class AdminDashboardStatsView(CountsView):
         return Response(data)
 
 
+
+
 class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+
+    parser_classes = [
+        MultiPartParser,
+        FormParser,
+        JSONParser,
+    ]
 
     def get_object(self):
-        obj, _ = Profile.objects.get_or_create(user=self.request.user)
-        
-        return obj
+        profile, created = Profile.objects.get_or_create(
+            user=self.request.user
+        )
+        return profile
+
+
+
 
 class EducationView(generics.ListCreateAPIView):
     serializer_class = EducationSerializer
@@ -111,9 +140,10 @@ class EducationView(generics.ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        profile, _ = Profile.objects.get_or_create(
+        profile, created = Profile.objects.get_or_create(
             user=self.request.user
         )
+
         serializer.save(profile=profile)
 
 
@@ -127,6 +157,8 @@ class EducationDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
+
+
 class ExperienceView(generics.ListCreateAPIView):
     serializer_class = ExperienceSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -137,9 +169,10 @@ class ExperienceView(generics.ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        profile, _ = Profile.objects.get_or_create(
+        profile, created = Profile.objects.get_or_create(
             user=self.request.user
         )
+
         serializer.save(profile=profile)
 
 
@@ -153,7 +186,8 @@ class ExperienceDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
-    
+
+
 class SkillView(generics.ListCreateAPIView):
     serializer_class = SkillSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -164,9 +198,10 @@ class SkillView(generics.ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        profile, _ = Profile.objects.get_or_create(
+        profile, created = Profile.objects.get_or_create(
             user=self.request.user
         )
+
         serializer.save(profile=profile)
 
 
@@ -175,24 +210,31 @@ class SkillDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-      
         return Skill.objects.filter(
             profile__user=self.request.user
         )
 
+
+
+
 class AdminApplicationListView(generics.ListAPIView):
     serializer_class = AdminApplicationSerializer
     permission_classes = [permissions.IsAdminUser]
-    queryset = Application.objects.select_related(
-        'user', 'job', 'job__company', 'job__category'
-    ).all().order_by('-applied_at')
 
+    queryset = Application.objects.select_related(
+        'user',
+        'job',
+        'job__company',
+        'job__category',
+    ).all().order_by('-applied_at')
 
 
 class AdminApplicationStatusUpdateView(generics.UpdateAPIView):
     queryset = Application.objects.all()
     serializer_class = AdminApplicationStatusSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
 
 
 class AdminUserViewSet(viewsets.ModelViewSet):
@@ -203,7 +245,10 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update']:
             return AdminUserStatusSerializer
+
         return AdminUserSerializer
+
+
 
 
 class CompanyListView(generics.ListAPIView):
