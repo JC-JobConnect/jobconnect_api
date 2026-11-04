@@ -19,6 +19,15 @@ urlpatterns = [
     path('v1/profile/', ProfileView.as_view()),
     path('v1/dashboard/counts/', CountsView.as_view()),
 
+    
+    path('v1/educations/', EducationView.as_view()),
+    path('v1/educations/<int:pk>/', EducationDetailView.as_view()),
+    path('v1/experiences/', ExperienceView.as_view()),
+    path('v1/experiences/<int:pk>/', ExperienceDetailView.as_view()),
+    path('v1/skills/', SkillView.as_view()),
+    path('v1/skills/<int:pk>/', SkillDetailView.as_view()),
+           
+
     # Auth
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
