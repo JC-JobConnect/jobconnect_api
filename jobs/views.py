@@ -26,14 +26,35 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = JobSerializer
     permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'location', 'experience_level', 'job_type', 'work_mode']
+
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+
+    filterset_fields = [
+        'category',
+        'location',
+        'experience_level',
+        'job_type',
+        'work_mode'
+    ]
+
     search_fields = ['title', 'company__name', 'description']
     ordering_fields = ['created_at', 'salary']
 
-
     def get_queryset(self):
-        return Job.objects.filter(is_active=True).select_related('category','company')
+        queryset = Job.objects.filter(
+            is_active=True
+        ).select_related('category', 'company')
+
+        exclude_id = self.request.query_params.get('exclude')
+
+        if exclude_id:
+            queryset = queryset.exclude(id=exclude_id)
+
+        return queryset
 
 class AdminJobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.select_related('category', 'company').all().order_by('-created_at')
