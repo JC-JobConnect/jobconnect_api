@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import (Category,Job,Application,Company,Profile,Education,Experience,Skill,)
 from .serializers import *
@@ -19,11 +20,11 @@ class CategoryListView(generics.ListAPIView):
     pagination_class = None
 
 
+
 class AdminCategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
-    permission_classes = [permissions.IsAdminUser]
-
+    permission_classes = [AllowAny]
 
 
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
@@ -36,14 +37,32 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
         filters.OrderingFilter,
     ]
 
+    
     filterset_fields = ['category', 'location']
-    search_fields = ['title', 'company__name', 'description']
+
+    search_fields = [
+    'title',
+    'company__name',   
+    'category__name',
+    ]
+
     ordering_fields = ['created_at', 'salary']
 
     def get_queryset(self):
-        return Job.objects.filter(
+        queryset = Job.objects.filter(
             is_active=True
         ).select_related('category', 'company')
+
+        min_salary = self.request.query_params.get('min_salary')
+        max_salary = self.request.query_params.get('max_salary')
+
+        if min_salary:
+            queryset = queryset.filter(salary__gte=min_salary)
+
+        if max_salary:
+            queryset = queryset.filter(salary__lte=max_salary)
+
+        return queryset
 
 
 class AdminJobViewSet(viewsets.ModelViewSet):
