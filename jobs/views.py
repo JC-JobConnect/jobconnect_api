@@ -76,6 +76,16 @@ class AdminJobViewSet(viewsets.ModelViewSet):
 
 
 
+class MyApplicationsView(generics.ListAPIView):
+    serializer_class = ApplicationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Application.objects.filter(
+            user=self.request.user
+        ).select_related('job', 'job__company')
+
+
 class ApplicationCreateView(generics.CreateAPIView):
     serializer_class = ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -87,16 +97,6 @@ class ApplicationCreateView(generics.CreateAPIView):
             raise ValidationError(
                 "You already applied for this job."
             )
-
-
-class MyApplicationsView(generics.ListAPIView):
-    serializer_class = ApplicationSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return Application.objects.filter(
-            user=self.request.user
-        ).select_related('job')
 
 
 

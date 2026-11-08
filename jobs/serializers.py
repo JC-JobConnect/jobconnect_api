@@ -104,21 +104,60 @@ class SkillSerializer(serializers.ModelSerializer):
         ]
 
 class ApplicationSerializer(serializers.ModelSerializer):
-    job_title = serializers.CharField(source='job.title', read_only=True)
-    company = serializers.CharField(source='job.company', read_only=True)
+    job_title = serializers.CharField(
+        source='job.title',
+        read_only=True
+    )
+    company = serializers.CharField(
+        source='job.company.name',
+        read_only=True
+    )
+    location = serializers.CharField(
+        source='job.location',
+        read_only=True
+    )
+    job_type = serializers.CharField(
+        source='job.job_type',
+        read_only=True
+    )
+    salary = serializers.DecimalField(
+        source='job.salary',
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
+        allow_null=True
+    )
+
     class Meta:
         model = Application
-        fields = ['id','job','job_title','company','full_name','email',
-                  'cover_letter','status','applied_at']
-        read_only_fields = ['status','applied_at']
-
+        fields = [
+            'id',
+            'job',
+            'job_title',
+            'company',
+            'location',
+            'job_type',
+            'salary',
+            'full_name',
+            'email',
+            'cover_letter',
+            'status',
+            'applied_at',
+        ]
+        read_only_fields = ['status', 'applied_at']
 
     def validate(self, attrs):
         user = self.context['request'].user
-        if Application.objects.filter(user=user, job=attrs['job']).exists():
-            raise serializers.ValidationError("You already applied for this job.")
-        return attrs
 
+        if Application.objects.filter(
+            user=user,
+            job=attrs['job']
+        ).exists():
+            raise serializers.ValidationError(
+                "You already applied for this job."
+            )
+
+        return attrs
 
 class AdminApplicationSerializer(serializers.ModelSerializer):
     job_title = serializers.CharField(
