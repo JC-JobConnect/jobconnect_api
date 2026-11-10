@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Job, Application ,Profile, Company
+from .models import Category, Job, Application ,Profile, Company,Education,Skill,Experience
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -18,10 +18,55 @@ class ApplicationAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     search_fields = ('user__username','job__title','email')
 
+class EducationInline(admin.TabularInline):
+    model = Education
+    extra = 0
+    can_delete = False
+class ExperienceInline(admin.TabularInline):
+    model = Experience
+    extra = 0
+    can_delete = False
+
+
+class SkillInline(admin.TabularInline):
+    model = Skill
+    extra = 0
+    can_delete = False
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'full_name', 'phone', 'location')
-    search_fields = ('user__username','location')
+    list_display = (
+        'id',
+        'user',
+        'full_name',
+        'phone',
+        'location',
+        'view_profile',
+    )
+
+    search_fields = ('user__username', 'location')
+
+    inlines = [
+    EducationInline,
+    ExperienceInline,
+    SkillInline,
+    ]
+
+    def view_profile(self, obj):
+        from django.utils.html import format_html
+        from django.urls import reverse
+
+        url = reverse(
+            'admin:jobs_profile_change',
+            args=[obj.pk]
+        )
+
+        return format_html(
+            '<a href="{}">View Profile</a>',
+            url
+        )
+
+    view_profile.short_description = 'Profile Details'
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):

@@ -258,18 +258,26 @@ class AdminApplicationStatusUpdateView(generics.UpdateAPIView):
 
 
 class AdminUserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-date_joined')
+    queryset = User.objects.select_related('profile').all().order_by('-date_joined')
     serializer_class = AdminUserSerializer
     permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.action == 'retrieve':
+            queryset = queryset.prefetch_related(
+                'profile__educations',
+                'profile__experiences',
+                'profile__skills',
+            )
+        return queryset
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update']:
             return AdminUserStatusSerializer
-
+        if self.action == 'retrieve':
+            return AdminUserDetailSerializer
         return AdminUserSerializer
-
-
-
 
 class CompanyListView(generics.ListAPIView):
     queryset = Company.objects.all()
