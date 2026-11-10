@@ -128,6 +128,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
         allow_null=True
     )
 
+    company_logo = serializers.ImageField(source='job.company.logo', read_only=True)
+
     class Meta:
         model = Application
         fields = [
@@ -135,6 +137,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'job',
             'job_title',
             'company',
+            'company_logo',
             'location',
             'job_type',
             'salary',
@@ -243,3 +246,4 @@ class CompanySerializer(serializers.ModelSerializer):
         except Exception as e:
             print("Error serializing jobs for company:", e)
             return []
+
