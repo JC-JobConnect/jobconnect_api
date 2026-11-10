@@ -148,6 +148,23 @@ class AdminApplicationStatusSerializer(serializers.ModelSerializer):
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='profile.full_name', read_only=True, default="")
+    phone = serializers.CharField(source='profile.phone', read_only=True, default="")
+    location = serializers.CharField(source='profile.location', read_only=True, default="")
+    headline = serializers.CharField(source='profile.headline', read_only=True, default="")
+    bio = serializers.CharField(source='profile.bio', read_only=True, default="")
+    
+    profile_picture = serializers.ImageField(
+        source='profile.profile_picture', 
+        read_only=True, 
+        allow_null=True
+    )
+    cv = serializers.FileField(
+        source='profile.cv', 
+        read_only=True, 
+        allow_null=True
+    )
+
     class Meta:
         model = User
         fields = [
@@ -158,8 +175,49 @@ class AdminUserSerializer(serializers.ModelSerializer):
             'email',
             'is_active',
             'date_joined',
+            'full_name',
+            'phone',
+            'location',
+            'headline',
+            'bio',
+            'profile_picture',
+            'cv',
         ]
         read_only_fields = fields
+
+class AdminUserDetailSerializer(AdminUserSerializer):
+    educations = serializers.SerializerMethodField()
+    experiences = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
+
+    class Meta(AdminUserSerializer.Meta):
+        fields = AdminUserSerializer.Meta.fields + [
+            'educations',
+            'experiences',
+            'skills',
+        ]
+        read_only_fields = fields
+
+    def _profile(self, obj):
+        return getattr(obj, 'profile', None)
+
+    def get_educations(self, obj):
+        profile = self._profile(obj)
+        if profile is None:
+            return []
+        return EducationSerializer(profile.educations.all(), many=True).data
+
+    def get_experiences(self, obj):
+        profile = self._profile(obj)
+        if profile is None:
+            return []
+        return ExperienceSerializer(profile.experiences.all(), many=True).data
+
+    def get_skills(self, obj):
+        profile = self._profile(obj)
+        if profile is None:
+            return []
+        return SkillSerializer(profile.skills.all(), many=True).data
 
 
 class AdminUserStatusSerializer(serializers.ModelSerializer):
