@@ -23,14 +23,7 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ['id', 'title', 'company', 'company_name', 'company_logo', 'location', 'description',
-                  #new
-                  'job_type','responsibilities','requirements',
-                   
-                  #optional
-                  'work_mode','experience_level',
-
-                  'salary','created_at', 'is_active', 'is_featured', 'category', 'category_name']
+        fields = ['id', 'title', 'company', 'company_name', 'company_logo', 'location', 'description','job_type','responsibilities','requirements','work_mode','experience_level','salary','created_at', 'is_active', 'is_featured', 'category', 'category_name']
         read_only_fields = ['created_at']
 
 
