@@ -223,12 +223,14 @@ USE_CLOUDINARY = os.environ.get("USE_CLOUDINARY", "False") == "True"
 
 if USE_CLOUDINARY:
     CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
-        "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
-        "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
-    }
-    
-    
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+# Automatically use Cloudinary storage if credentials are provided,
+# otherwise fallback to local file system storage for local development.
+if CLOUDINARY_STORAGE["CLOUD_NAME"]:
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -238,7 +240,6 @@ if USE_CLOUDINARY:
         },
     }
 else:
-   
     STORAGES = {
         "default": {
             "BACKEND": "django.core.files.storage.FileSystemStorage",
