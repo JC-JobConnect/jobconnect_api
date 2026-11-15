@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
 
     'rest_framework',
     'rest_framework_simplejwt',
@@ -213,4 +215,34 @@ CORS_ALLOW_CREDENTIALS = True
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+USE_CLOUDINARY = os.environ.get("USE_CLOUDINARY", "False") == "True"
+
+if USE_CLOUDINARY:
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+        "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
+        "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+    }
+
+
+if USE_CLOUDINARY:
+    DEFAULT_MEDIA_BACKEND = (
+        "cloudinary_storage.storage.MediaCloudinaryStorage"
+    )
+else:
+    DEFAULT_MEDIA_BACKEND = (
+        "django.core.files.storage.FileSystemStorage"
+    )
+
+STORAGES = {
+    "default": {
+        "BACKEND": DEFAULT_MEDIA_BACKEND,
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
+    },
+}
 
