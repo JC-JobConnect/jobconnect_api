@@ -216,33 +216,34 @@ CORS_ALLOW_CREDENTIALS = True
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-USE_CLOUDINARY = os.environ.get("USE_CLOUDINARY", "False") == "True"
 
-if USE_CLOUDINARY:
+
+
+USE_CLOUDINary = os.environ.get("USE_CLOUDINARY", "False") == "True"
+
+if USE_CLOUDINary:
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
         "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
         "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
     }
-
-
-if USE_CLOUDINARY:
-    DEFAULT_MEDIA_BACKEND = (
-        "cloudinary_storage.storage.MediaCloudinaryStorage"
-    )
+    
+    
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 else:
-    DEFAULT_MEDIA_BACKEND = (
-        "django.core.files.storage.FileSystemStorage"
-    )
-
-STORAGES = {
-    "default": {
-        "BACKEND": DEFAULT_MEDIA_BACKEND,
-    },
-    "staticfiles": {
-        "BACKEND": (
-            "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        ),
-    },
-}
-
+   
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
