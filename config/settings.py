@@ -219,9 +219,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 
-USE_CLOUDINary = os.environ.get("USE_CLOUDINARY", "False") == "True"
+USE_CLOUDINARY = os.environ.get("USE_CLOUDINARY", "False") == "True"
 
-if USE_CLOUDINary:
+if USE_CLOUDINARY:
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
         "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
