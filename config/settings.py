@@ -219,17 +219,14 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 
-USE_CLOUDINARY = os.environ.get("USE_CLOUDINARY", "False") == "True"
-
-if USE_CLOUDINARY:
-    CLOUDINARY_STORAGE = {
+CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
     "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
 }
 
-# Automatically use Cloudinary storage if credentials are provided,
-# otherwise fallback to local file system storage for local development.
+# Automatically use Cloudinary storage in production if credentials are provided,
+# otherwise fallback safely to local file system storage for local development.
 if CLOUDINARY_STORAGE["CLOUD_NAME"]:
     STORAGES = {
         "default": {
@@ -248,3 +245,4 @@ else:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
+
