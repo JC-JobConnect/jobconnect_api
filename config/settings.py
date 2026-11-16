@@ -90,12 +90,12 @@ INSTALLED_APPS = [
 # =====================================================
 
 MIDDLEWARE = [
+    # CorsMiddleware MUST be placed as high as possible to catch cross-origin requests
+    "corsheaders.middleware.CorsMiddleware",
 
     "django.middleware.security.SecurityMiddleware",
 
     "whitenoise.middleware.WhiteNoiseMiddleware",
-
-    "corsheaders.middleware.CorsMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
 
@@ -228,49 +228,31 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # =====================================================
-# CLOUDINARY CONFIGURATION
+# CLOUDINARY CONFIGURATION (With .strip() to prevent 500 auth errors)
 # =====================================================
 
-CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
-
-CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
-
-CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
-
+CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "").strip()
+CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "").strip()
+CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "").strip()
 
 CLOUDINARY_STORAGE = {
-
     "CLOUD_NAME": CLOUDINARY_CLOUD_NAME,
-
     "API_KEY": CLOUDINARY_API_KEY,
-
     "API_SECRET": CLOUDINARY_API_SECRET,
-
     "SECURE": True,
-
 }
 
-
-# Check all Cloudinary credentials
-
 CLOUDINARY_ENABLED = all([
-
     CLOUDINARY_CLOUD_NAME,
-
     CLOUDINARY_API_KEY,
-
     CLOUDINARY_API_SECRET,
-
 ])
 
-
 if not DEBUG and not CLOUDINARY_ENABLED:
-
     raise ValueError(
-        "Cloudinary credentials are missing. "
-        "Check CLOUDINARY_CLOUD_NAME, "
-        "CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET "
-        "in Render environment variables."
+        "Cloudinary credentials are missing or contain whitespace. "
+        "Check CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, "
+        "and CLOUDINARY_API_SECRET in Render environment variables."
     )
 
 
@@ -279,46 +261,23 @@ if not DEBUG and not CLOUDINARY_ENABLED:
 # =====================================================
 
 if CLOUDINARY_ENABLED:
-
     STORAGES = {
-
         "default": {
-
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-
         },
-
         "staticfiles": {
-
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-
         },
-
     }
-
 else:
-
     STORAGES = {
-
         "default": {
-
             "BACKEND": "django.core.files.storage.FileSystemStorage",
-
         },
-
         "staticfiles": {
-
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-
         },
-
     }
-
-print("CLOUDINARY CHECK:")
-print("CLOUD NAME:", bool(CLOUDINARY_CLOUD_NAME))
-print("API KEY:", bool(CLOUDINARY_API_KEY))
-print("API SECRET:", bool(CLOUDINARY_API_SECRET))
-
 
 MEDIA_URL = "/media/"
 
@@ -327,9 +286,7 @@ MEDIA_URL = "/media/"
 # EMAIL CONFIGURATION
 # =====================================================
 
-EMAIL_BACKEND = (
-    "django.core.mail.backends.console.EmailBackend"
-)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 # =====================================================
@@ -337,25 +294,15 @@ EMAIL_BACKEND = (
 # =====================================================
 
 REST_FRAMEWORK = {
-
     "DEFAULT_AUTHENTICATION_CLASSES": [
-
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-
     ],
-
     "DEFAULT_FILTER_BACKENDS": [
-
         "django_filters.rest_framework.DjangoFilterBackend",
-
     ],
-
     "DEFAULT_PERMISSION_CLASSES": [
-
         "rest_framework.permissions.AllowAny",
-
     ],
-
 }
 
 
@@ -364,37 +311,20 @@ REST_FRAMEWORK = {
 # =====================================================
 
 CORS_ALLOWED_ORIGINS = [
-
     "http://localhost:5173",
-
     "http://127.0.0.1:5173",
-
     "http://localhost:3000",
-
     "http://127.0.0.1:3000",
-
     "http://localhost:5174",
-
     "http://127.0.0.1:5174",
-
     "https://jobconnectbd-tau.vercel.app",
-
 ]
-
 
 CORS_ALLOWED_ORIGINS += [
-
     origin.strip()
-
-    for origin in os.getenv(
-        "CORS_ALLOWED_ORIGINS",
-        ""
-    ).split(",")
-
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
     if origin.strip()
-
 ]
-
 
 CORS_ALLOW_CREDENTIALS = True
 
