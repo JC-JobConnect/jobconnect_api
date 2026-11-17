@@ -38,7 +38,7 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
     ]
 
     
-    filterset_fields = ['category', 'location']
+    filterset_fields = ['category', 'location', 'is_featured']
 
     search_fields = [
     'title',
